@@ -270,3 +270,26 @@ UserSchema.pre('save', function(next) {
 ```
 
 Se voltarmos ao Postman/Insomnia e salvarmos um novo usuário, veremos que a senha agora se parece com `$2a$10$WUDvddmqQFTUmvnM6Ix.xehdpkonrQ/nL4PBUMqDcXq6uep2Qc/7i` .
+
+### 10. Validações de Cadastro
+
+Nosso campo `email` possui uma _constraint_ (restrição) `unique` , ou seja, não permitimos o cadastro de mais de um usuário com o mesmo email. Se houver a tentativa de um cadastro de email já existente, nosso sistema reotrnará o _status code_ 400 _BAD REQUEST_ com a mensagem 'Ops! Houve uma falha no cadastro do usuário'.
+
+Para tratarmos esse cenário específico, podemos criar a seguinte validação em nosso _controller_. Dentro do `try` (logo após 'abrirmos' ele) inseriremos:
+
+``` js
+if ((await User.findOne({
+        email: email
+    })))
+    return res.status(400).send({
+        error: 'Ops! Parece que esse email já foi cadastrado!'
+    })
+```
+
+Acima usamos o _if_ com _short circuit_ (condição `&&` retorno) para, caso o email já exista, retornarmos uma resposta mais específica.
+
+Outra melhoria que podemos fazer é 'apagar' a senha após salvá-la no objeto do usuário (pois quando criamos um usuário ele acaba retornando a senha encriptada - o `select: false` que definimos no _model_ só é aplicado no _select_, não no momento de criação do registro). Então depois de criarmos o registro, 'limpar' essa senha:
+
+``` js
+user.senha = undefined
+```
