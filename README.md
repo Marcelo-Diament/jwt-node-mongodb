@@ -113,7 +113,7 @@ Se estiver tudo ok, pode seguir para o próximo passo. Caso contrário, reveja o
 
 ### 05. Conectando com Banco de Dados
 
-Vamos criar um arquivo _index.js_ dentro de uma pasta (que criaremos também) chamada _db_ (`touch db/index.js && code db/index.js`).
+Vamos criar um arquivo _index.js_ dentro de uma pasta (que criaremos também) chamada _db_ (`mkdir db && cd db && touch index.js && code db/index.js`).
 
 Nesse arquivo vamos usar o _mongoose_ para fazermos a conexão:
 
