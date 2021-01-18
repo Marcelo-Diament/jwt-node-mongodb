@@ -4,6 +4,7 @@
   "description": "Prática para aprendermos sobre JWT com Node.js e MongoDB",
   "main": "server.js",
   "scripts": {
+    "start": "nodemon server",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
