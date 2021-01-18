@@ -58,3 +58,11 @@ Baixe o [MongoDB Compass](https://docs.mongodb.com/manual/installation/) (_Commu
 No MongoDB Compass, crie um novo Banco de Dados (_CREATE DATABASE_). Vamos chama-lo de `mongocrud` . E a _collection_ inicial chamaremos de `user` .
 
 ___
+
+## Passo a Passo
+
+### 01. Iniciando Projeto
+
+``` sh
+npm init
+```
