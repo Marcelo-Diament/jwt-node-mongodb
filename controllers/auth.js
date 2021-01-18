@@ -19,4 +19,19 @@ router.post('/register', async (req, res) => {
   }
 })
 
+router.post('/authentication', async (req, res) => {
+  const { email, senha } = req.body
+  const user = await User.findOne({ email }).select('+senha')
+
+  if (!user)
+    return res.status(204).send({ error: 'Ops... Usuário não encontrado!' })
+
+  if (!await bcrypt.compare(senha, user.senha))
+    return res.status(400).send({ error: 'Ops... Senha inválida!' })
+
+  user.senha = undefined
+
+  res.send({ user })
+})
+
 module.exports = app => app.use('/auth', router)
