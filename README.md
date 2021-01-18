@@ -293,3 +293,75 @@ Outra melhoria que podemos fazer é 'apagar' a senha após salvá-la no objeto d
 ``` js
 user.senha = undefined
 ```
+
+### 11. Rota de Autenticação
+
+No nosso arquivo _auth.js_ vamos criar uma nova rota, com o verbo/método `POST` e o _endpoint_ `authentication` . Receberemos na _request_ os valores de `email` e `senha` (vamos usar a desestruturação para capturarmos esses valores do `req.body` e atribuirmos a variáveis com os mesmos nomes das chaves ( `email` e `senha` ): `const { email, senha } = req.body` .
+
+Então, o primeiro passo será buscarmos o usuário com aquele email (que sabemos que é único) com o método `findOnd()` . Mas como precisaremos verificar a senha do usuário - e definimos no nosso _model_ para não recebê-la nos `select` s, precisaremos adicionar um segundo método (`select('+senha') para termos acesso a ela.
+
+Em seguida, partiremos para as validações!
+
+#### Validações
+
+**Usuário não existente**
+
+A primeira validação é sabermos se o usuário está cadastrado no nosso Banco de Dados. Para isso vamos declarar:
+
+``` js
+if (!user)
+    return res.status(204).send({
+        error: 'Ops... Usuário não encontrado!'
+    })
+```
+
+**Senha incorreta**
+
+Como nossa senha está encriptada, precisamos importar o _bcryptjs_ ( `const bcrypt = require('bcryptjs')` e depois validar a senha inserida:
+
+``` js
+if (!await bcrypt.compare(senha, user.senha))
+    return res.status(400).send({
+        error: 'Ops... Senha inválida!'
+    })
+```
+
+> Observação: por razões de segurança, pode ser interessante termos o mesmo erro devolvido para 'usuário não encontrado' e 'senha inválida', de modo a não mostrar que o email existe no segundo caso. É uma escolha a ser feita pelo desenvolvedor, _product owner_ ou pelas regras de negócios.
+
+**Sucesso**
+
+E, caso a _request_ não caia em nenhuma das condições, o usuário é autenticado ( `res.send({user})` ).
+
+Por fim, também precisamos 'limpar' a senha nessa rota.
+
+#### Código final da rota:
+
+``` js
+router.post('/authentication', async (req, res) => {
+    const {
+        email,
+        senha
+    } = req.body
+    const user = await User.findOne({
+        email
+    }).select('+senha')
+
+    if (!user)
+        return res.status(204).send({
+            error: 'Ops... Usuário não encontrado!'
+        })
+
+    if (!await bcrypt.compare(senha, user.senha))
+        return res.status(400).send({
+            error: 'Ops... Senha inválida!'
+        })
+
+    user.senha = undefined
+
+    res.send({
+        user
+    })
+})
+```
+
+Podemos testar novamente no Postman/Insomnia, criando uma nova _request_ com o método `POST` , _endpoint_ `http://localhost:5000/auth/authentication`
