@@ -181,3 +181,34 @@ const User = mongoose.model('User', UserSchema)
 // Exportando o model User
 module.exports = User
 ```
+
+### 07. Criando o Controller de Autenticação
+
+Vamos criar uma pasta chamada _controllers_. Dentro dela criaremos o _controller_ responsável pela autenticação (_auth.js_). O _controller_ nada mais é do que um objeto com os métodos (a serem utilizados de acordo com cada rota) definidos dentro dele.
+
+``` js
+const express = require('express')
+const User = require('../models/user')
+const router = express.Router()
+
+router.post('/register', async (req, res) => {
+    const {
+        email
+    } = req.body
+
+    try {
+        const user = await User.create(req.body)
+        return res.send({
+            user
+        })
+    } catch (err) {
+        return res.status(400).send({
+            error: 'Ops! Houve uma falha no cadastro do usuário'
+        })
+    }
+})
+
+module.exports = app => app.use('/auth', router)
+```
+
+E precisamos importar esse _controller_ no nosso _server_: `require('./controllers/auth')(app)`
