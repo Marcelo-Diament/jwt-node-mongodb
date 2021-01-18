@@ -66,3 +66,13 @@ ___
 ``` sh
 npm init
 ```
+
+### 02. Instalando Dependências
+
+``` sh
+npm i express body-parser mongoose dotenv bcryptjs jsonwebtoken --save
+```
+
+``` sh
+npm i nodemon --save-dev
+```
