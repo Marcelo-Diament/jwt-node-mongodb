@@ -110,3 +110,26 @@ No terminal, execute `npm start` (ou `npm run start` ) e veja se o terminal exib
 Acesse no navegador `localhost:5000` (ou a porta definida no servidor) e veja se ele retorna a mensagem definida no método `send()` da nossa rota inicial.
 
 Se estiver tudo ok, pode seguir para o próximo passo. Caso contrário, reveja os passos anteriores.
+
+### 05. Conectando com Banco de Dados
+
+Vamos criar um arquivo _index.js_ dentro de uma pasta (que criaremos também) chamada _db_ (`touch db/index.js && code db/index.js`).
+
+Nesse arquivo vamos usar o _mongoose_ para fazermos a conexão:
+
+```js
+// Importando mongoose
+const mongoose = require('mongoose')
+
+// Usando useCreateIndex (pois o método ensureIndex foi depreciado e geraria um erro posteriormente
+mongoose.set('useCreateIndex', true)
+
+// Conectando via mongoose, onde mongocrud é o nome do nosso banco de dados
+mongoose.connect('mongodb://localhost/mongocrud', {useMongoClient: true})
+
+// Definindo classe de promise a ser utilizada pelo mongoose (no node, usamos global.Promise)
+mongoose.Promise = global.Promise
+
+// Exportamos mongoose
+module.exports = mongoose
+```
