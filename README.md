@@ -576,3 +576,35 @@ router.get('/', async (req, res) => res.send({
 ```
 
 ___
+
+### _And that's all folks!_
+
+Nossa prática chegou ao fim! Mas...
+
+## Desafios
+
+Ainda podemos crescer esse projeto. Por exemplo:
+
+### 01. Recuperação de Senha por Email
+
+### 02. Cadastro, Edição, Atualização e Exclusão de Pedidos
+
+Criaremos outras práticas para ensinar como fazer isso, mas é muito válido tentar implementar essas _features_ por conta própria.
+
+Afinal, **pesquisar, estudar, testar e aprender faz parte do dia a dia de qualquer _dev_ que se preze**. =)
+
+#### Obrigado por ler essa documentação até o final!
+
+**Vamos nos conectar?**
+
+Se quiser trocar ideias, experiências e figurinhas, entre em contato comigo!
+
+**Marcelo Diament** | Desenvolvedor @ Jüssi (Whirlpool > Compra Certa) e Instrutor FullStack @ Digital House
+
+[Github][Github] | [LinkedIn][LinkedIn]
+
+[//]: # 
+
+[Github]: <https://github.com/Marcelo-Diament>
+
+[LinkedIn]: <https://linkedin.com/in/marcelodiament>
