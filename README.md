@@ -243,3 +243,30 @@ Ao enviar nossa _request_, devemos receber um _status code_ 200 OK e o nosso reg
 	}
 }
 ```
+
+### 09. Encriptando a Senha
+
+De volta ao nosso _model_ de usuário, vamos importar o pacote _dcryptjs_ antes de definirmos o `UserSchema` :
+
+``` js
+const bcrypt = require('bcryptjs')
+```
+
+E antes de salvarmos o registro ( `const User` ), vamos usar um método do _mongoose_ que nos permite manipular o objeto a ser criado ( `NomeDoSchema.pre('save', callback` ). Vale ressaltar que, nesse caso, não podemos usar _arrow function_, pois usaremos a _keyword_ `this` para nos referirmos ao objeto que será criado - e com _arrow function_ perderíamos o escopo da função.
+
+``` js
+// Definimos a função a ser executada antes de salvarmos o usuário
+UserSchema.pre('save', function(next) {
+
+    // Usamos o bcryptjs para 'hashearmos' a senha
+    const hash = await bcrypt.hash(this.senha, 10)
+
+    // Atribuímos o valor do hash à propriedade senha do usuário a ser criado
+    this.senha = hash
+
+    // Continuamos com o registro do usuário
+    next()
+})
+```
+
+Se voltarmos ao Postman/Insomnia e salvarmos um novo usuário, veremos que a senha agora se parece com `$2a$10$WUDvddmqQFTUmvnM6Ix.xehdpkonrQ/nL4PBUMqDcXq6uep2Qc/7i` .
