@@ -212,3 +212,34 @@ module.exports = app => app.use('/auth', router)
 ```
 
 E precisamos importar esse _controller_ no nosso _server_: `require('./controllers/auth')(app)`
+
+### 08. Testando o Cadastro de Usuário
+
+No Postman ou no Insomnia, vamos acessar nosso _back end_ para testarmos o cadastro de usuários.
+
+Para isso basta criarmos uma requisição com o **método `POST` ** e com o _endpoint_ (endereço para onde a requisição é enviada) com o valor: **http://localhost:5000/auth/register**.
+
+E no _body_ da nossa _request_ (requisição), vamos passar um JSON com os dados necessários ( `nome` , `email` e `senha` ). O campo `criadoEm` será preenchido automaticamente com o valor _default_. Exemplo:
+
+``` json
+{
+	"nome": "Marcelo",
+	"email": "marcelo@djament.com.br",
+	"senha": "123456"
+}
+```
+
+Ao enviar nossa _request_, devemos receber um _status code_ 200 OK e o nosso registro aparecerá com o campo `criadoEm` e dois novos campos - `_id` e `__v` , gerados pelo próprio MongoDB:
+
+``` json
+{
+	"user": {
+		"_id": "6004a284203b7e3d908f4f02",
+		"nome": "Marcelo",
+		"email": "marcelo@djament.com.br",
+		"senha": "123456",
+		"criadoEm": "2021-01-17T20:48:04.529Z",
+		"__v": 0
+	}
+}
+```
