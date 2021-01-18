@@ -84,3 +84,29 @@ No package.json, incluir em _scripts_:
 ``` json
 "start": "nodemon server"
 ```
+
+### 04. Criando Servidor (e Rota Inicial)
+
+``` js
+const express = require('express')
+const bodyParser = require('body-parser')
+
+const app = express()
+require('dotenv').config()
+const port = process.env.PORT || 5000
+
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({
+    extended: false
+}))
+
+app.get('/', (req, res) => res.send('<h1>Node + Express + MongoDB Auth</h1>'))
+
+app.listen(port, () => console.log(`Servidor rodando na porta ${port}`))
+```
+
+No terminal, execute `npm start` (ou `npm run start` ) e veja se o terminal exibe a mensagem que definimos no `console.log()` definido como _callback_ do método `listen()` .
+
+Acesse no navegador `localhost:5000` (ou a porta definida no servidor) e veja se ele retorna a mensagem definida no método `send()` da nossa rota inicial.
+
+Se estiver tudo ok, pode seguir para o próximo passo. Caso contrário, reveja os passos anteriores.
