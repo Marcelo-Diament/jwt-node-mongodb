@@ -76,3 +76,11 @@ npm i express body-parser mongoose dotenv bcryptjs jsonwebtoken --save
 ``` sh
 npm i nodemon --save-dev
 ```
+
+### 03. Definindo Script `start`
+
+No package.json, incluir em _scripts_:
+
+``` json
+"start": "nodemon server"
+```
