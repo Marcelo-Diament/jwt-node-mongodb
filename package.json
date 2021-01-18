@@ -1,0 +1,29 @@
+{
+  "name": "jwt-node-mongodb",
+  "version": "1.0.0",
+  "description": "Prática para aprendermos sobre JWT com Node.js e MongoDB",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Marcelo-Diament/jwt-node-mongodb.git"
+  },
+  "keywords": [
+    "nodejs",
+    "mongodb",
+    "jwt",
+    "authentication",
+    "auth",
+    "expressjs",
+    "express",
+    "node"
+  ],
+  "author": "Marcelo Diament",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Marcelo-Diament/jwt-node-mongodb/issues"
+  },
+  "homepage": "https://github.com/Marcelo-Diament/jwt-node-mongodb#readme"
+}
