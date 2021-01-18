@@ -113,11 +113,11 @@ Se estiver tudo ok, pode seguir para o próximo passo. Caso contrário, reveja o
 
 ### 05. Conectando com Banco de Dados
 
-Vamos criar um arquivo _index.js_ dentro de uma pasta (que criaremos também) chamada _db_ (`mkdir db && cd db && touch index.js && code db/index.js`).
+Vamos criar um arquivo _index.js_ dentro de uma pasta (que criaremos também) chamada _db_ ( `mkdir db && cd db && touch index.js && code db/index.js` ).
 
 Nesse arquivo vamos usar o _mongoose_ para fazermos a conexão:
 
-```js
+``` js
 // Importando mongoose
 const mongoose = require('mongoose')
 
@@ -125,11 +125,59 @@ const mongoose = require('mongoose')
 mongoose.set('useCreateIndex', true)
 
 // Conectando via mongoose, onde mongocrud é o nome do nosso banco de dados
-mongoose.connect('mongodb://localhost/mongocrud', {useMongoClient: true})
+mongoose.connect('mongodb://localhost/mongocrud', {
+    useMongoClient: true
+})
 
 // Definindo classe de promise a ser utilizada pelo mongoose (no node, usamos global.Promise)
 mongoose.Promise = global.Promise
 
 // Exportamos mongoose
 module.exports = mongoose
+```
+
+### 06. Criando o Model de User
+
+Criaremos uma pasta chamada _models_ e, dentro dela, um arquivo _user.js_, que ficará assim:
+
+``` js
+// Importando mongoose
+const mongoose = require('mongoose')
+
+// Criando o Schema de User (um blueprint, um esqueleto da tabela, como deve ser um registro)
+const UserSchema = new mongoose.Schema({
+    // Definindo o campo nome
+    nome: {
+        // Definindo o tipo de campo (String)
+        type: String,
+        // Definindo que é um campo obrigatório
+        required: true
+    },
+    email: {
+        type: String,
+        // Definindo que seu valor deve ser único
+        unique: true,
+        required: true,
+        // Definindo que seu valor (texto) será convertido para caixa baixa (minúsculas)
+        lowercase: true
+    },
+    password: {
+        type: String,
+        required: true,
+        // Definindo que esse campo não será trazido automaticamente nos selects/consultas
+        select: false
+    },
+    criadoEm: {
+        // Definindo tipo de campo como data
+        type: Date,
+        // Definindo valor padrão para o campo (quando o mesmo não for enviado) como a data atual
+        default: Date.now
+    }
+})
+
+// Definindo nosso model User de acordo com a Schema acima declarada
+const User = mongoose.model('User', UserSchema)
+
+// Exportando o model User
+module.exports = User
 ```
