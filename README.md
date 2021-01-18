@@ -455,3 +455,124 @@ res.send({
 ```
 
 Com essa atualização, não precisamos mais do trecho que definia o _token_ dentro da rota de autenticação.
+
+### 13. Pedidos (orders)
+
+Para podermos evoluir com o projeto e, principalmente, para verificarmos se os usuários realmente estão autenticados (afinal, no login e no cadastro o usuário não estará registrado), vamos simular a possibilidade de usuários cadastrarem Pedidos. Então começaremos com o _controller_ desses pedidos - vamos criar o arquivo _orders.js_ dentro da pasta _controllers_.
+
+> **Desafio**: após terminar a prática, tente realizar o CRUD de fato, permitindo que usuário possam realizar (cadastrar) pedidos na nossa API.
+
+**Controller Orders**
+
+``` js
+const express = require('express')
+const router = express.Router()
+
+router.get('/', async (req, res) => res.send('<h1>Pedidos</h1>'))
+
+module.exports = app => app.use('/orders', router)
+```
+
+A princípio vamos apenas tratar essa rota retornando um título 'Pedidos'.
+
+No nosso _server.js_ também precisamos passar o `app` para essa rota:
+
+``` js
+require('./controllers/orders')(app)
+```
+
+Para testar podemos criar uma nova _request_ no Postman/Insomnia ( `GET` | `http://localhost:5000/orders` ) ou podemos acessar http://localhost:5000/orders no próprio _browser_/navegador.
+
+Ok, mas até aí... sem novidades. Mas... digamos que o usuário precisa estar autenticado para poder visualizar os pedidos/_orders_. É aí que entra o _middleware_!
+
+**Middleware**
+
+Podemos entender o _middleware_ como o 'meio de campo' entre a _request_ e a _response_, ou melhor, entre a rota e o _controller_. É no _middleware_ que faremos essa autenticação.
+
+Então vamos criar uma pasta para os _middlewares_ e, dentro dela, vamos criar um _middleware_ de autenticação. Chamaremos esse novo arquivo de _auth.js_.
+
+Nele, vamos tratar essa autenticação. Caso esteja tudo ok, vamos acessar esse terceiro argumento, o `next` , que permitirá que o usuário prossiga para a rota desejada, desde que esteja autenticado.
+
+Já vamos importar nossos recursos de autenticação:
+
+``` js
+const jwt = require('jsonwebtoken')
+const authConfig = require('../config/auth')
+```
+
+E vamos exportar nosso retorno, de acordo com a requisição e resposta:
+
+``` js
+module.exports = (req, res, next) => {
+    // Validações e retorno
+}
+```
+
+Precisamos fazer algumas validações (para otimizar a performance da nossa aplicação), como verificar se o token está sendo enviado:
+
+``` js
+// Vamos tentar capturar a autorização enviada no header da requisição
+const authorization = req.headers.authorization
+
+// Validando se a autorização existe
+if (!authorization)
+    return res.status(401).send({
+        error: 'Token não enviado'
+    })
+```
+
+Se estiver sendo enviado, se está formatado corretamente (com 2 partes, `Bearer` e o `token` propriamente dito) e se a primeira parte é o `Bearer` :
+
+``` js
+// Quebrando o JWT em 2 partes, o Bearer e o Token, com split
+const authParts = authorization.split(' ')
+
+// Validando se temos essas 2 partes
+if (authParts.length !== 2)
+    return res.status(401).send({
+        error: 'Erro de token'
+    })
+
+// Desestruturando para salvarmos cada parte em uma variável
+const [bearer, token] = authParts
+
+// Se a primeira parte não começar com a string 'Bearer' retornamos outro erro (verificação com RegEx)
+if (!/^Bearer$/i.test(bearer))
+    return res.status(401).send({
+        error: 'Token mal formatado'
+    })
+```
+
+Caso todas essas validações estejam OK, vamos verificar o _token_ propriamente dito. Se estiver tudo OK com o _token_ também, retornamos o ID do usuário decodificado num _callback_:
+
+``` js
+jwt.verify(token, authConfig.secret, (err, decoded) => {
+    if (err)
+        return res.status(401).send({
+            error: 'Token inválido'
+        })
+    req.userId = decoded.id
+    return next()
+})
+```
+
+Para testarmos nossa autenticação, vamos importar o _middleware_ de autorização em nosso controlador (_controller_) de pedidos ( `const authMiddleware = require('../middlewares/auth')` ) e declarar `router.use(authMiddleware)` .
+
+Lá no Postman/Insomnia vamos acessar nossa _request_ `GET` para `orders` sem _token_, com um _token_ mal formatado, com o _token_ errado e com o _token_ correto (basta autenticar um usuário na outra _request_ de autenticação e copiar o _token_ informado).
+
+Como usamos o ID do usuário na requisição, podemos acessá-lo no controlador de pedidos, por exemplo:
+
+``` js
+router.get('/', async (req, res) => res.send(`<h1>Pedidos | Autenticação do Usuário de ID ${req.userId}</h1>`))
+```
+
+Podemos ainda, passar a _response_ como objeto:
+
+``` js
+router.get('/', async (req, res) => res.send({
+    ok: true,
+    userId: req.userId
+}))
+```
+
+___
