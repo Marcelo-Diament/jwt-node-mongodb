@@ -365,3 +365,93 @@ router.post('/authentication', async (req, res) => {
 ```
 
 Podemos testar novamente no Postman/Insomnia, criando uma nova _request_ com o método `POST` , _endpoint_ `http://localhost:5000/auth/authentication`
+
+### 12. JWT | JSON Web Token
+
+Chegou a hora de usasrmos nosso Web Token. O primeiro passo é importar o pacote no nosso _controller_: `const jwt = require('jsonwebtoken')` .
+
+Dentro da nossa rota de autenticação, vamos gerar esse _token_ usando a chave `id` do nosso usuário (por ser única) e um _hash_, que será o identificador da nossa aplicação. Para isso podemos escolher uma palavra chave e gerar uma chave MD5 a partir dela (você pode usar [esse site](https://www.md5hashgenerator.com/) para isso).
+
+Não queremos deixar essa chave exposta, então podemos salvá-la num novo local/arquivo - _config/auth.json_ com a chave `"secret"` . Exemplo:
+
+``` json
+{
+	"secret": "b1eb18b2364449f0dee6c1794d1a1e57"
+}
+```
+
+Agora importarmos esse JSON ( `const authConfig = require('../config/auth')` _ e usarmos em nossa rota de autenticação, após limparmos a senha:
+
+``` js
+const token = jwt.sign({
+    id: user.id
+}, authConfig.secret, {
+    expiresIn: 43200
+})
+```
+
+Veja que passamos como argumentos o `id` do usuário, nosso _token_ ( `secret` ) e um prazo de validade ( `expiresIn` , que é calculado em segundos - no caso ele expirará em 12 horas).
+
+Por fim, basta enviarmos o `token` junto ao `user` : `res.send({user, token})` . Então nossa rota de autenticação ficou assim:
+
+``` js
+router.post('/authentication', async (req, res) => {
+    const {
+        email,
+        senha
+    } = req.body
+    const user = await User.findOne({
+        email
+    }).select('+senha')
+
+    if (!user)
+        return res.status(400).send({
+            error: 'Ops... Usuário não encontrado!'
+        })
+
+    if (!await bcrypt.compare(senha, user.senha))
+        return res.status(400).send({
+            error: 'Ops... Senha inválida!'
+        })
+
+    user.senha = undefined
+
+    const token = jwt.sign({
+        id: user.id
+    }, authConfig.secret, {
+        expiresIn: 43200
+    })
+
+    res.send({
+        user,
+        token
+    })
+})
+```
+
+Mas... e o usuário que acaba de ser registrar? Vamos obrigar ele a fazer o login após se cadastrar? Não seria mais interessante já logar após o cadastro?
+
+Então vamos gerar e passar esse mesmo _token_ no momento de registro. E, já que vamos duplicar esse código, é mais recomendável nós definirmos uma função para gerar o _token_ e executá-la em ambas as rotas.
+
+A função deverá receber um parâmetro (o `id` do usuário) e retornar o _token_ (mas vamos definir esse parâmetro como argumento opcional, caso não seja enviado será um objeto vazio):
+
+``` js
+function generateToken(params = {}) {
+    return jwt.sign(params, authConfig.secret, {
+        expiresIn: 43200
+    })
+}
+```
+
+E no método `send` da _response_, vamos atribuir o valor retornado pela função à propriedade `token` :
+
+``` js
+res.send({
+    user,
+    token: generateToken({
+        id: user.id
+    })
+})
+```
+
+Com essa atualização, não precisamos mais do trecho que definia o _token_ dentro da rota de autenticação.
