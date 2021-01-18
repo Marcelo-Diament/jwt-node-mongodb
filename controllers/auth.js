@@ -1,5 +1,6 @@
 const express = require('express')
 const jwt = require('jsonwebtoken')
+const authConfig = require('../config/auth')
 
 const User = require('../models/user')
 const router = express.Router()
@@ -26,14 +27,16 @@ router.post('/authentication', async (req, res) => {
   const user = await User.findOne({ email }).select('+senha')
 
   if (!user)
-    return res.status(204).send({ error: 'Ops... Usuário não encontrado!' })
+    return res.status(400).send({ error: 'Ops... Usuário não encontrado!' })
 
   if (!await bcrypt.compare(senha, user.senha))
     return res.status(400).send({ error: 'Ops... Senha inválida!' })
 
   user.senha = undefined
 
-  res.send({ user })
+  const token = jwt.sign({ id: user.id }, authConfig.secret, { expiresIn: 43200 })
+
+  res.send({ user, token })
 })
 
 module.exports = app => app.use('/auth', router)
